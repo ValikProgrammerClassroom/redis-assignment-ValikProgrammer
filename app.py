@@ -10,7 +10,7 @@ Run locally:
     # or
     uvicorn app:app --reload
 
-Run tests:
+Run tests:sdfsdfsdf
     pytest tests/ -v
 """
 
