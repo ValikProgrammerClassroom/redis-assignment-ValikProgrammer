@@ -113,19 +113,19 @@ def get_task():
 
 @app.get("/request_sliding")
 def rate_limited_request_sliding(user_id: str):
-    # key = f"sliding:user:{user_id}"
-    # now = time.time()
-    # window_start = now - WINDOW_SECONDS
+    key = f"sliding:user:{user_id}"
+    now = time.time()
+    window_start = now - WINDOW_SECONDS
 
-    # # Use a pipeline for atomicity (3 commands sent in one round-trip)
-    # pipe = r.pipeline()
-    # pipe.zremrangebyscore(key, 0, window_start)         # drop old entries
-    # pipe.zadd(key, {str(uuid.uuid4()): now})            # record this request
-    # pipe.zcard(key)                                     # current count
-    # pipe.expire(key, WINDOW_SECONDS)                    # auto-cleanup if idle
-    # _, _, count, _ = pipe.execute()
+    # Use a pipeline for atomicity (3 commands sent in one round-trip)
+    pipe = r.pipeline()
+    pipe.zremrangebyscore(key, 0, window_start)         # drop old entries
+    pipe.zadd(key, {str(uuid.uuid4()): now})            # record this request
+    pipe.zcard(key)                                     # current count
+    pipe.expire(key, WINDOW_SECONDS)                    # auto-cleanup if idle
+    _, _, count, _ = pipe.execute()
 
-    # if count > RATE_LIMIT:
-    #     raise HTTPException(status_code=429, detail="rate limit exceeded")
-    # return {"status": "ok", "remaining": RATE_LIMIT - count}
-    pass
+    if count > RATE_LIMIT:
+        raise HTTPException(status_code=429, detail="rate limit exceeded")
+    return {"status": "ok", "remaining": RATE_LIMIT - count}
+    
